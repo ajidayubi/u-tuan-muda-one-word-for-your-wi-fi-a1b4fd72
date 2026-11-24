@@ -19,11 +19,18 @@ WORD = "scam"
 
 
 def main() -> int:
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR") or "/output"
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8", newline="") as f:
         f.write(WORD)
+    # Self-check: the sealed gate accepts UTF-8 text of 1 to 20
+    # characters, not only white space. Refuse to exit 0 with a bad
+    # file rather than silently submitting an invalid entry.
+    with open(path, "r", encoding="utf-8", newline="") as f:
+        written = f.read()
+    if written != WORD or not 1 <= len(written) <= 20 or not written.strip():
+        return 1
     return 0
 
 
